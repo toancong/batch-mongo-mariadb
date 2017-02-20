@@ -1,4 +1,5 @@
 <?php
+namespace BatchMongoRDB\Core;
 
 class RDBHelper
 {
@@ -22,7 +23,7 @@ class RDBHelper
     public function getClient()
     {
         if ($this->client === null) {
-            $this->client = new PDO($this->connectionStr, $this->user, $this->pass);
+            $this->client = new \PDO($this->connectionStr, $this->user, $this->pass);
         }
         return $this->client;
     }

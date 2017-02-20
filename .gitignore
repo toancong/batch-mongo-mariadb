@@ -1,0 +1,4 @@
+vendor/
+mongo/dump/*.json
+mongo/dump/*.bson
+composer.lock

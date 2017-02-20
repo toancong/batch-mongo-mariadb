@@ -1,4 +1,4 @@
-vendor/
-mongo/dump/*.json
-mongo/dump/*.bson
-composer.lock
+/vendor/
+/mongo/dump
+/composer.lock
+/resources/mongo/dump

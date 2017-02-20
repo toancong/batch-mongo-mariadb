@@ -1,34 +1,27 @@
-version: '2'
-
+version: "2"
 services:
   mongo:
     image: mongo:3
     ports:
-      - 27017:27017
+      - 27037:27017
     volumes:
-      - ./mongo/dump/:/data/dbmongo
+      - ./resources/mongo/dump/:/data/dbmongo
       # mongorestore --nsInclude '*'  --db dbmongo  /data/dbmongo
     environment:
       - MONGODB_DATABASE=dbmongo
-      - MONGODB_USER=dbuser
-      - MONGODB_PASS=123456
-
-  mysql:
-    image: mysql:5.7
+  rdb:
+    image: mariadb
     ports:
-      - 3306:3306
+      - 33306:3306
     environment:
-      - MYSQL_DATABASE=dbmysql
+      - MYSQL_DATABASE=db
       - MYSQL_USER=dbuser
-      - MYSQL_PASSWORD=123456
+      - MYSQL_PASSWORD=123
       - MYSQL_ROOT_PASSWORD=root
-
-  app:
+  batch:
     build: .
     depends_on:
-      - mysql
+      - rdb
       - mongo
     volumes:
       - .:/app
-    working_dir: /app
-    # command: php index.php

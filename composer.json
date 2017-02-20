@@ -1,0 +1,14 @@
+{
+    "name": "jinjer/batch-mongo-maria",
+    "description": "Batch convert collections from mongodb to mariadb",
+    "type": "library",
+    "require": {
+      "php": ">=7.1",
+      "vlucas/phpdotenv": "^2.4"
+    },
+    "autoload": {
+        "psr-4": {
+              "BatchMongoRDB\\": "src/"
+        }
+    },
+}

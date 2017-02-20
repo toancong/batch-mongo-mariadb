@@ -1,3 +1,4 @@
 /vendor/
 /mongo/dump
 /composer.lock
+/resources/mongo/dump

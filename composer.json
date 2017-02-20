@@ -1,6 +1,7 @@
 {
     "require": {
         "mongodb/mongodb": "^1.1",
-        "vlucas/phpdotenv": "^2.4"
+        "vlucas/phpdotenv": "^2.4",
+        "robmorgan/phinx": "^0.7.1"
     }
 }

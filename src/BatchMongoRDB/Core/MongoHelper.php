@@ -1,4 +1,5 @@
 <?php
+namespace BatchMongoRDB\Core;
 
 class MongoHelper
 {
@@ -17,7 +18,7 @@ class MongoHelper
     public function getClient()
     {
         if ($this->client === null) {
-            $this->client = (new MongoDB\Client($this->connectionStr))->{$this->db};
+            $this->client = (new \MongoDB\Client($this->connectionStr))->{$this->db};
         }
         return $this->client;
     }
@@ -28,10 +29,10 @@ class MongoHelper
         foreach (static::COLLECTIONS as $collectionName) {
             $condition = [];
             if (isset($meta[$collectionName]['last_updated_at'])) {
-                $condition['updated_at'] = ['$gte' => new MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_updated_at'])];
+                $condition['updated_at'] = ['$gte' => new \MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_updated_at'])];
             }
             if (isset($meta[$collectionName]['last_updated_id'])) {
-                $condition['_id'] = ['$gt' => new MongoDB\BSON\ObjectID($meta[$collectionName]['last_updated_id'])];
+                $condition['_id'] = ['$gt' => new \MongoDB\BSON\ObjectID($meta[$collectionName]['last_updated_id'])];
             }
             $collection = $this->getClient()->$collectionName;
             $items = $collection->find($condition, [
@@ -60,10 +61,10 @@ class MongoHelper
                 ],
             ];
             if (isset($meta[$collectionName]['last_deleted_at'])) {
-                $condition['deleted_at']['$gte'] = new MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_deleted_at']);
+                $condition['deleted_at']['$gte'] = new \MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_deleted_at']);
             }
             if (isset($meta[$collectionName]['last_deleted_id'])) {
-                $condition['_id'] = ['$gt' => new MongoDB\BSON\ObjectID($meta[$collectionName]['last_deleted_id'])];
+                $condition['_id'] = ['$gt' => new \MongoDB\BSON\ObjectID($meta[$collectionName]['last_deleted_id'])];
             }
             $collection = $this->getClient()->$collectionName;
             $items = $collection->find($condition, [

@@ -6,7 +6,7 @@ namespace BatchMongoRDB\Core;
  */
 class JobRunner
 {
-    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper)
+    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper, $jobs = [])
     {
         $this->mongoHelper = $mongoHelper;
         $this->rdbHelper = $rdbHelper;

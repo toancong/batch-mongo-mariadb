@@ -128,7 +128,9 @@ class RDBHelper
             ];
             $queries[] = str_replace($cols, $vals, $query);
         }
-        $this->getClient()->exec(implode(';', $queries));
+        if (!empty($queries)) {
+            $this->getClient()->exec(implode(';', $queries));
+        }
     }
 
     public function deleteByIds($arr = [], $soft = true, $deletedAtByIds = [])

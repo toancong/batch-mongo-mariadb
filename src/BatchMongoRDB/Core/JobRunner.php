@@ -1,27 +1,23 @@
 <?php
 namespace BatchMongoRDB\Core;
+use \BatchMongoRDB\Core\ConsoleHelper;
+use \BatchMongoRDB\Core\MongoHelper;
+use \BatchMongoRDB\Core\PhinxHelper;
+use \BatchMongoRDB\Core\RDBHelper;
 
 /**
  *
  */
 class JobRunner
 {
-    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper, $jobs = [])
+    public function __construct(MongoHelper $mongoHelper, RDBHelper $rdbHelper, $job)
     {
         $this->mongoHelper = $mongoHelper;
         $this->rdbHelper = $rdbHelper;
-
-        $this->oldMeta = $this->rdbHelper->getMeta();
-        $this->newMeta = $this->oldMeta;
-
-        $this->jobs = $jobs;
-
-        // Gets reconnect time in env (seconds)
-        $this->reconnectAfter = intval(getenv('RECONNECT_AFTER'));
-        $this->connectionTime = 0;
+        $this->job = $job;
     }
 
-    public function update($updatedMeta = [])
+    private function update($updatedMeta = [])
     {
         foreach ($updatedMeta as $collectionName => $meta) {
             if (isset($meta['last_updated_id'])) {
@@ -36,7 +32,7 @@ class JobRunner
         }
     }
 
-    public function delete($deletedMeta = [])
+    private function delete($deletedMeta = [])
     {
         foreach ($deletedMeta as $collectionName => $meta) {
             if (isset($meta['last_deleted_id'])) {
@@ -51,7 +47,7 @@ class JobRunner
         }
     }
 
-    public function resetUpdate()
+    private function resetUpdate()
     {
         foreach ($this->newMeta as $collectionName => $meta) {
             unset($this->newMeta[$collectionName]['last_updated_id']);
@@ -59,7 +55,7 @@ class JobRunner
         }
     }
 
-    public function resetDelete()
+    private function resetDelete()
     {
         foreach ($this->newMeta as $collectionName => $meta) {
             unset($this->newMeta[$collectionName]['last_deleted_id']);
@@ -67,12 +63,12 @@ class JobRunner
         }
     }
 
-    public function shouldReconnect()
+    private function shouldReconnect()
     {
         return empty($this->reconnectAfter) ? false : $this->connectionTime >= $this->reconnectAfter;
     }
 
-    public function reconnect()
+    private function reconnect()
     {
         // Reconnects to mongodb and RDB
         $this->mongoHelper->reconnect();
@@ -84,6 +80,7 @@ class JobRunner
 
     public function process()
     {
+        $this->init();
         $start = time();
         while (true) {
             // Reconnects to DBs
@@ -98,7 +95,7 @@ class JobRunner
             $isDeletedFinished = false;
 
             // Gets update data from mongoDB
-            list($updatedData, $updatedMeta) = $this->mongoHelper->getUpdatedData($this->oldMeta);
+            list($updatedData, $updatedMeta) = $this->mongoHelper->getUpdatedData($this->job->getCollectionName(), $this->oldMeta);
             if (!empty($updatedData)) {
                 // Changes flag value
                 $hasNewData = true;
@@ -113,7 +110,7 @@ class JobRunner
             }
 
             // Gets remove data from mongoDB
-            list($deletedData, $deletedMeta) = $this->mongoHelper->getDeletedData($this->oldMeta);
+            list($deletedData, $deletedMeta) = $this->mongoHelper->getDeletedData($this->job->getCollectionName(), $this->oldMeta);
             if (!empty($deletedData)) {
                 // Changes flag value
                 $hasNewData = true;
@@ -140,5 +137,40 @@ class JobRunner
                 }
             }
         }
+    }
+
+    private function init()
+    {
+      $this->oldMeta = $this->rdbHelper->getMeta();
+      $this->newMeta = $this->oldMeta;
+
+      // Gets reconnect time in env (seconds)
+      $this->reconnectAfter = intval(getenv('RECONNECT_AFTER'));
+      $this->connectionTime = 0;
+    }
+
+    public static function run()
+    {
+      // Loads environment
+      (new \Dotenv\Dotenv(__DIR__.'/../../../'))->load();
+
+      ConsoleHelper::init();
+      $job = ConsoleHelper::getJobs();
+      if (!$job) {
+        echo 'No jobs. Exit!';
+        return;
+      }
+
+      // Run migration
+      PhinxHelper::init()->runMigrate();
+
+      // Create a job
+      $name = $job[0];
+      $job = '\BatchMongoRDB\Jobs\\'.$name;
+      $job = new $job();
+
+      // Runs job
+      $runner = new \BatchMongoRDB\Core\JobRunner(new MongoHelper, new RDBHelper, $job);
+      $runner->process();
     }
 }

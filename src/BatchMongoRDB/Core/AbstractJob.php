@@ -8,17 +8,12 @@ use \BatchMongoRDB\Core\MongoHelper;
  */
 abstract class AbstractJob
 {
-  /**
-   * Job's name
-   * @var string
-   */
-  public $name;
+
   public $rdbConnection;
   public $mongoConnection;
 
-  public function __construct($name)
+  public function __construct()
   {
-    $this->name = $name;
   }
 
   public function connectDBs()
@@ -53,4 +48,7 @@ abstract class AbstractJob
    * Do something after done task
    */
   public abstract function done();
+
+  public abstract function getCollectionName();
+  public abstract function getTableName();
 }

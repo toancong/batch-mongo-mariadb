@@ -20,8 +20,8 @@ class ConsoleHelper
     {
         // Defines a flag "-j" a.k.a. "--jobs"
         static::getClient()->option('j')
-            ->aka('jobs')
-            ->describedAs('Jobs will be ran');
+            ->aka('job')
+            ->describedAs('Job will be ran');
     }
 
     public static function getJobs()

@@ -9,6 +9,16 @@ use \BatchMongoRDB\Core\RDBHelper;
  */
 class ExampleSimpleJob extends SimpleJob
 {
+  public function getCollectionNames()
+  {
+    return ['app_versions'];
+  }
+
+  public function getTableNames()
+  {
+    return ['app_versions'];
+  }
+
   public function getMappingSchemeConfig()
   {
     return [

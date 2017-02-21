@@ -108,4 +108,21 @@ class RDBHelper
         }
         $this->getClient()->exec(implode(';', $queries));
     }
+
+    public function deleteByIds($arr = [], $soft = true)
+    {
+        $query = $soft ? 'UPDATE `:table` SET `deleted_at`=:deleted_at WHERE `id` IN (:ids)' : 'DELETE FROM `:table` WHERE `id` IN (:ids)';
+        $queries = [];
+        foreach ($arr as $table => $ids) {
+            $vals = [
+                ':table' => $table,
+                ':ids' => "'" . implode("','", $ids) . "'",
+            ];
+            if ($soft) {
+                $vals[':deleted_at'] = "'" . date('Y-m-d H:i:s') . "'";
+            }
+            $queries[] = str_replace([':table', ':ids', ':deleted_at'], $vals, $query);
+        }
+        return $this->getClient()->exec(implode(';', $queries));
+    }
 }

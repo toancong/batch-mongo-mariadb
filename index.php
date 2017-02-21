@@ -11,10 +11,9 @@ try {
     throw new $e;
 }
 
-
 // Gets DB helpers
-$mongoHelper = new \BatchMongoRDB\Core\MongoHelper(getenv('MONGODB_URL'), getenv('MONGODB_DB'));
-$rdbHelper = new \BatchMongoRDB\Core\RDBHelper(getenv('RDB_URL') . ';dbname=' . getenv('RDB_DB'), getenv('RDB_USER'), getenv('RDB_PASS'));
+$mongoHelper = new \BatchMongoRDB\Core\MongoHelper();
+$rdbHelper = new \BatchMongoRDB\Core\RDBHelper();
 
 // Initials MySQL
 // $rdbHelper->init();

@@ -15,6 +15,10 @@ class JobRunner
         $this->newMeta = $this->oldMeta;
 
         $this->jobs = $jobs;
+
+        // Gets reconnect time in env (seconds)
+        $this->reconnectAfter = intval(getenv('RECONNECT_AFTER'));
+        $this->connectionTime = 0;
     }
 
     public function update($updatedMeta = [])
@@ -63,9 +67,32 @@ class JobRunner
         }
     }
 
+    public function shouldReconnect()
+    {
+        return empty($this->reconnectAfter) ? false : $this->connectionTime >= $this->reconnectAfter;
+    }
+
+    public function reconnect()
+    {
+        // Reconnects to mongodb and RDB
+        $this->mongoHelper->reconnect();
+        $this->rdbHelper->reconnect();
+
+        // Resets connection time
+        $this->connectionTime = 0;
+    }
+
     public function process()
     {
+        $start = time();
         while (true) {
+            // Reconnects to DBs
+            $this->connectionTime = time() - $start;
+            if ($this->shouldReconnect()) {
+                $this->reconnect();
+            }
+
+            // Sets value for some stubs
             $hasNewData = false;
             $isUpdatedFinished = false;
             $isDeletedFinished = false;

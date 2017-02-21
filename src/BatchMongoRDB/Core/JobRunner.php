@@ -82,6 +82,7 @@ class JobRunner
     {
         $this->init();
         $start = time();
+        $collections = $this->job->getCollectionNames();
         while (true) {
             // Reconnects to DBs
             $this->connectionTime = time() - $start;
@@ -95,7 +96,7 @@ class JobRunner
             $isDeletedFinished = false;
 
             // Gets update data from mongoDB
-            list($updatedData, $updatedMeta) = $this->mongoHelper->getUpdatedData($this->job->getCollectionName(), $this->oldMeta);
+            list($updatedData, $updatedMeta) = $this->mongoHelper->getUpdatedData($collections, $this->oldMeta);
             if (!empty($updatedData)) {
                 // Changes flag value
                 $hasNewData = true;
@@ -103,6 +104,7 @@ class JobRunner
                 // Adds new meta
                 $this->update($updatedMeta);
                 // @TODO updates data here
+                $this->job->doReplace($updatedData);
             } else {
                 // Finished, resets meta for new update data
                 $isUpdatedFinished = true;
@@ -110,7 +112,7 @@ class JobRunner
             }
 
             // Gets remove data from mongoDB
-            list($deletedData, $deletedMeta) = $this->mongoHelper->getDeletedData($this->job->getCollectionName(), $this->oldMeta);
+            list($deletedData, $deletedMeta) = $this->mongoHelper->getDeletedData($collections, $this->oldMeta);
             if (!empty($deletedData)) {
                 // Changes flag value
                 $hasNewData = true;
@@ -118,6 +120,7 @@ class JobRunner
                 // Adds new meta
                 $this->delete($deletedMeta);
                 // @TODO deletes data here
+                $this->job->doDelete($updatedData);
             } else {
                 // Finished, resets meta for new delete data
                 $isDeletedFinished = true;
@@ -155,22 +158,24 @@ class JobRunner
       (new \Dotenv\Dotenv(__DIR__.'/../../../'))->load();
 
       ConsoleHelper::init();
-      $job = ConsoleHelper::getJobs();
+      $job = ConsoleHelper::getJob();
       if (!$job) {
         echo 'No jobs. Exit!';
         return;
       }
 
+      $mongoHelper = new MongoHelper;
+      $rdbHelper = new RDBHelper;
+
       // Run migration
-      PhinxHelper::init()->runMigrate();
+      echo PhinxHelper::init()->runMigrate();
 
       // Create a job
-      $name = $job[0];
-      $job = '\BatchMongoRDB\Jobs\\'.$name;
-      $job = new $job();
+      $job = '\\BatchMongoRDB\Jobs\\'.$job;
+      $job = new $job($mongoHelper, $rdbHelper);
 
       // Runs job
-      $runner = new \BatchMongoRDB\Core\JobRunner(new MongoHelper, new RDBHelper, $job);
+      $runner = new \BatchMongoRDB\Core\JobRunner($mongoHelper, $rdbHelper, $job);
       $runner->process();
     }
 }

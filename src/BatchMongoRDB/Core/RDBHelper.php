@@ -74,20 +74,11 @@ class RDBHelper
         return $this->client;
     }
 
-    public function init()
+    public function bulk($queries = [])
     {
-        $createMetaTable = "CREATE TABLE IF NOT EXISTS `{$this->metaTable}` (
-            `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-            `collection` varchar(45) NOT NULL,
-            `last_updated_at` bigint(20) DEFAULT NULL,
-            `last_deleted_at` bigint(20) DEFAULT NULL,
-            `last_updated_id` varchar(45) DEFAULT NULL,
-            `last_deleted_id` varchar(45) DEFAULT NULL,
-            `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            PRIMARY KEY (`id`),
-            UNIQUE KEY `collection_UNIQUE` (`collection`)
-        ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=latin1;";
-        $this->getClient()->exec($createMetaTable);
+        if (!empty($queries)) {
+            $this->getClient()->exec(implode(';', $queries));
+        }
     }
 
     public function getMeta()
@@ -128,9 +119,7 @@ class RDBHelper
             ];
             $queries[] = str_replace($cols, $vals, $query);
         }
-        if (!empty($queries)) {
-            $this->getClient()->exec(implode(';', $queries));
-        }
+        $this->bulk($queries);
     }
 
     public function deleteByIds($arr = [], $soft = true, $deletedAtByIds = [])
@@ -159,16 +148,37 @@ class RDBHelper
             }
             $queries[] = str_replace([':table', ':ids', ':deleted_at'], $vals, $query);
         }
-        return $this->getClient()->exec(implode(';', $queries));
+        $this->bulk($queries);
     }
 
-    public function createTable($table, $schemaColumns, $meta = ' ENGINE=InnoDB DEFAULT CHARSET=utf8;')
+    public function replace($table, $mapping, $row, $toString = false)
     {
-      $columns = [];
-      foreach ($schemaColumns as $column) {
-        $columns[] = implode(' ', $column);
-      }
-      $query = "CREATE TABLE IF NOT EXISTS `{$table}` (".implode(',', $columns).")".$meta.';';
-      $this->getClient()->exec($query);
+        $colsUnique = [];
+        foreach ($mapping as $mongoField => $rdbField) {
+            $colsUnique[$rdbField] = uniqid("col_{$rdbField}");
+        }
+        $query = "REPLACE INTO `{$table}`(`" . implode('`,`', array_values($mapping)) . '`) VALUES (:' . implode(',:', array_values($colsUnique)) . ')';
+        $vals = [];
+        $cols = [];
+        foreach ($mapping as $mongoField => $rdbField) {
+            $col = ":{$colsUnique[$rdbField]}";
+            if (isset($row->$mongoField)) {
+                $vals[$col] = "'" . (string) $row->$mongoField . "'";
+            } else {
+                $vals[$col] = 'null';
+            }
+            $cols[] = $col;
+        }
+        return $toString ? str_replace($cols, $vals, $query) : $this->getClient()->exec(str_replace($cols, $vals, $query));
+    }
+
+    public function createTable($table, $schemaColumns, $meta = ' ENGINE=InnoDB DEFAULT CHARSET=utf8;', $toString = false)
+    {
+        $columns = [];
+        foreach ($schemaColumns as $column) {
+            $columns[] = implode(' ', $column);
+        }
+        $query = "CREATE TABLE IF NOT EXISTS `{$table}` (" . implode(',', $columns) . ')';
+        return $toString ? $query : $this->getClient()->exec($query);
     }
 }

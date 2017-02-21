@@ -1,54 +1,57 @@
 <?php
 namespace BatchMongoRDB\Core;
-use \BatchMongoRDB\Core\RDBHelper;
-use \BatchMongoRDB\Core\MongoHelper;
+
+use BatchMongoRDB\Core\MongoHelper;
+use BatchMongoRDB\Core\RDBHelper;
 
 /**
  * Abstract for job
  */
 abstract class AbstractJob
 {
+    public $rdbConnection;
+    public $mongoConnection;
 
-  public $rdbConnection;
-  public $mongoConnection;
+    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper)
+    {
+        $this->mongoHelper = $mongoHelper;
+        $this->rdbHelper = $rdbHelper;
+    }
 
-  public function __construct()
+    /**
+     * Return an array for config mapping fields mongo to rdb.
+     * Default is empty array for pass initial creation table
+     * @return array config mapping table
+     */
+    public function getMappingSchemeConfig()
+    {
+        return [];
+    }
+
+    /**
+     * Do replace task
+     * @return boolean result success or fail
+     */
+    abstract public function doReplace($data);
+
+    /**
+     * Do delete task
+     * @return boolean result success or fail
+     */
+    abstract public function doDelete($data);
+
+    /**
+     * Do something after done task
+     */
+    abstract public function done();
+
+  public function getCollectionNames()
   {
+    return array_keys($this->getMappingSchemeConfig()['table']);
   }
 
-  public function connectDBs()
+  public function getTableNames()
   {
-    $this->rdbConnection = new RDBHelper;
-    $this->mongoConnection = new MongoHelper;
+    return array_values($this->getMappingSchemeConfig()['table']);
   }
-
-  /**
-   * Return an array for config mapping fields mongo to rdb.
-   * Default is empty array for pass initial creation table
-   * @return array config mapping table
-   */
-  public function getMappingSchemeConfig()
-  {
-    return [];
-  }
-
-  /**
-   * Do replace task
-   * @return boolean result success or fail
-   */
-  public abstract function doReplace();
-
-  /**
-   * Do delete task
-   * @return boolean result success or fail
-   */
-  public abstract function doDelete();
-
-  /**
-   * Do something after done task
-   */
-  public abstract function done();
-
-  public abstract function getCollectionName();
-  public abstract function getTableName();
 }

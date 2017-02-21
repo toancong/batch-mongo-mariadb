@@ -18,26 +18,14 @@ class ConsoleHelper
 
     public static function init()
     {
-        // Defines a flag "-j" a.k.a. "--jobs"
+        // Defines a flag "-j" a.k.a. "--job"
         static::getClient()->option('j')
             ->aka('job')
             ->describedAs('Job will be ran');
     }
 
-    public static function getJobs()
+    public static function getJob()
     {
-        $jobs = [];
-        if (!empty(static::getClient()['j'])) {
-            $jobs = explode(',', static::getClient()['j']);
-        } else {
-            $envJobs = getenv('DEFAULT_JOBS');
-            if ($envJobs) {
-                $defaultJobs = explode(',', $envJobs);
-                if (!empty($defaultJobs)) {
-                    $jobs = $defaultJobs;
-                }
-            }
-        }
-        return $jobs;
+        return empty(static::getClient()['j']) ? (getenv('DEFAULT_JOBS') ? getenv('DEFAULT_JOBS') : null) : static::getClient()['j'];
     }
 }

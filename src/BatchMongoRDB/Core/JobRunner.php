@@ -6,13 +6,15 @@ namespace BatchMongoRDB\Core;
  */
 class JobRunner
 {
-    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper)
+    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper, $jobs = [])
     {
         $this->mongoHelper = $mongoHelper;
         $this->rdbHelper = $rdbHelper;
 
         $this->oldMeta = $this->rdbHelper->getMeta();
         $this->newMeta = $this->oldMeta;
+
+        $this->jobs = $jobs;
     }
 
     public function update($updatedMeta = [])

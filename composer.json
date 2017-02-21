@@ -8,12 +8,19 @@
         "mongodb/mongodb": "^1.1",
         "robmorgan/phinx": "^0.7.1"
     },
+    "require-dev": {
+        "phpunit/phpunit": "^6.0",
+        "symfony/var-dumper": "^3.2"
+    },
     "autoload": {
         "psr-4": {
               "BatchMongoRDB\\": "src/BatchMongoRDB"
-        }
+        },
+        "classmap": ["tests/"]
     },
-    "require-dev": {
-        "symfony/var-dumper": "^3.2"
+    "scripts": {
+      "test": [
+          "phpunit --colors=always"
+      ]
     }
 }

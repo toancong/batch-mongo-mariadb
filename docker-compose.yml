@@ -19,6 +19,15 @@ services:
       - MYSQL_USER=dbuser
       - MYSQL_PASSWORD=123
       - MYSQL_ROOT_PASSWORD=root
+  rdbtest:
+    image: mariadb
+    ports:
+      - 33307:3306
+    environment:
+      - MYSQL_DATABASE=db_test
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=123
+      - MYSQL_ROOT_PASSWORD=root
   batch:
     build: .
     depends_on:

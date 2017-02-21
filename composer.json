@@ -12,5 +12,8 @@
         "psr-4": {
               "BatchMongoRDB\\": "src/BatchMongoRDB"
         }
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^3.2"
     }
 }

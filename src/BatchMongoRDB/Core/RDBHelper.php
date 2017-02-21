@@ -9,14 +9,38 @@ class RDBHelper
     protected $user;
     protected $pass;
     protected $metaTable = 'sync_meta';
+    protected static $config = [];
 
-    public function __construct($connectionStr, $user = null, $pass = null, $metaTable = null)
+    public static function getConfig()
     {
-        $this->connectionStr = $connectionStr;
-        $this->user = $user;
-        $this->pass = $pass;
-        if (!empty($metaTable)) {
-            $this->metaTable = $metaTable;
+        if (empty(static::$config)) {
+            static::$config = [
+                'host' => getenv('RDB_HOST'),
+                'port' => getenv('RDB_PORT'),
+                'database' => getenv('RDB_DB'),
+                'username' => getenv('RDB_USER'),
+                'password' => getenv('RDB_PASS'),
+            ];
+        }
+        return static::$config;
+    }
+
+    public function __construct($config = [])
+    {
+        $config = array_merge(static::getConfig(), $config);
+        $temp = [];
+        $temp[] = empty($config['host']) ? 'host=127.0.0.1' : "host={$config['host']}";
+        $temp['port'] = empty($config['port']) ? 'port=3306' : "port={$config['port']}";
+        $temp['dbname'] = empty($config['dbname']) ? 'dbname=db' : "dbname={$config['dbname']}";
+        $this->connectionStr = 'mysql:' . implode(';', $temp);
+        if (!empty($config['username'])) {
+            $this->user = $config['username'];
+        }
+        if (!empty($config['password'])) {
+            $this->pass = $config['password'];
+        }
+        if (!empty($config['metatable'])) {
+            $this->metaTable = $config['metatable'];
         }
     }
 

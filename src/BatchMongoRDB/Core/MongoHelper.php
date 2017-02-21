@@ -8,11 +8,39 @@ class MongoHelper
     protected $client = null;
     protected $connectionStr;
     protected $db;
+    protected static $config = [];
 
-    public function __construct($connectionStr, $db)
+    public static function getConfig()
     {
-        $this->connectionStr = $connectionStr;
-        $this->db = $db;
+        if (empty(static::$config)) {
+            static::$config = [
+                'host' => getenv('MONGODB_HOST'),
+                'port' => getenv('MONGODB_PORT'),
+                'database' => getenv('MONGODB_DB'),
+                'username' => getenv('MONGODB_USER'),
+                'password' => getenv('MONGODB_PASS'),
+            ];
+        }
+        return static::$config;
+    }
+
+    public function __construct($config = [])
+    {
+        $config = array_merge(static::getConfig(), $config);
+        $conStr = 'mongodb://';
+        if (!empty($config['username']) || !empty($config['password'])) {
+            if (!empty($config['username'])) {
+                $conStr .= $config['username'];
+            }
+            if (!empty($config['password'])) {
+                $conStr .= ":{$config['password']}";
+            }
+            $conStr .= '@';
+        }
+        $conStr .= empty($config['host']) ? '127.0.0.1' : $config['host'];
+        $conStr .= empty($config['port']) ? ':27017' : ":{$config['port']}";
+        $this->connectionStr = $conStr;
+        $this->db = empty($config['database']) ? 'db' : $config['database'];
     }
 
     public function getClient()

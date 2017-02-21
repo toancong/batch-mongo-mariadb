@@ -30,8 +30,8 @@ class RDBHelper
         $config = array_merge(static::getConfig(), $config);
         $temp = [];
         $temp[] = empty($config['host']) ? 'host=127.0.0.1' : "host={$config['host']}";
-        $temp['port'] = empty($config['port']) ? 'port=3306' : "port={$config['port']}";
-        $temp['dbname'] = empty($config['dbname']) ? 'dbname=db' : "dbname={$config['dbname']}";
+        $temp[] = empty($config['port']) ? 'port=3306' : "port={$config['port']}";
+        $temp[] = empty($config['database']) ? 'dbname=db' : "dbname={$config['database']}";
         $this->connectionStr = 'mysql:' . implode(';', $temp);
         if (!empty($config['username'])) {
             $this->user = $config['username'];

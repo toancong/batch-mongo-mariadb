@@ -14,7 +14,7 @@ class ExampleSimpleJob extends SimpleJob
     return [
       'table' => ['app_versions' => 'app_versions'],
       'columns' => [
-        '_id' => ['id', 'string primary key NOT NULL'],
+        '_id' => ['id', 'varchar(24) primary key NOT NULL'],
         'platform' => ['platform', 'varchar(10)'],
         'version' => ['version', 'varchar(20)'],
         'name' => ['name', 'varchar(50)'],

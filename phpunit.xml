@@ -19,9 +19,9 @@
   </logging>
   <php>
     <env name="APP_ENV" value="test"/>
-    <env name="DB_HOST" value="rdbtest"/>
-    <env name="DB_NAME" value="db_test"/>
-    <env name="DB_USER" value="dbuser"/>
-    <env name="DB_PASS" value="123"/>
+    <env name="RDB_HOST" value="rdbtest"/>
+    <env name="RDB_DB" value="db_test"/>
+    <env name="RDB_USER" value="dbuser"/>
+    <env name="RDB_PASS" value="123"/>
   </php>
 </phpunit>

@@ -44,11 +44,33 @@ class RDBHelper
         }
     }
 
-    public function getClient()
+    public function connect($forceNew = false)
     {
-        if ($this->client === null) {
+        if ($forceNew || $this->client === null) {
             $this->client = new \PDO($this->connectionStr, $this->user, $this->pass);
         }
+        return true;
+    }
+
+    public function close()
+    {
+        if ($this->client !== null) {
+            $this->client = null;
+        }
+        return true;
+    }
+
+    public function reconnect()
+    {
+        if ($this->close()) {
+            return $this->connect(true);
+        }
+        return false;
+    }
+
+    public function getClient()
+    {
+        $this->connect();
         return $this->client;
     }
 

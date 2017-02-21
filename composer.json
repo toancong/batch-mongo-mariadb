@@ -10,7 +10,7 @@
     },
     "autoload": {
         "psr-4": {
-              "BatchMongoRDB\\": "src/"
+              "BatchMongoRDB\\": "src/BatchMongoRDB"
         }
     }
 }

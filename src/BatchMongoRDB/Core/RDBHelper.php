@@ -44,11 +44,33 @@ class RDBHelper
         }
     }
 
-    public function getClient()
+    public function connect($forceNew = false)
     {
-        if ($this->client === null) {
+        if ($forceNew || $this->client === null) {
             $this->client = new \PDO($this->connectionStr, $this->user, $this->pass);
         }
+        return true;
+    }
+
+    public function close()
+    {
+        if ($this->client !== null) {
+            $this->client = null;
+        }
+        return true;
+    }
+
+    public function reconnect()
+    {
+        if ($this->close()) {
+            return $this->connect(true);
+        }
+        return false;
+    }
+
+    public function getClient()
+    {
+        $this->connect();
         return $this->client;
     }
 
@@ -109,5 +131,34 @@ class RDBHelper
         if (!empty($queries)) {
             $this->getClient()->exec(implode(';', $queries));
         }
+    }
+
+    public function deleteByIds($arr = [], $soft = true, $deletedAtByIds = [])
+    {
+        $query = $soft ? 'UPDATE `:table` SET `deleted_at`=:deleted_at WHERE `id` IN (:ids)' : 'DELETE FROM `:table` WHERE `id` IN (:ids)';
+        $queries = [];
+        foreach ($arr as $table => $ids) {
+            $vals = [
+                ':table' => $table,
+                ':ids' => "'" . implode("','", $ids) . "'",
+            ];
+            if ($soft) {
+                $deletedAt = null;
+                if (!empty($deletedByIds)) {
+                    foreach ($ids as $id) {
+                        if (isset($deletedByIds[$id])) {
+                            $deletedAt = "'" . $deletedByIds[$id] . "'";
+                            break;
+                        }
+                    }
+                }
+                if (empty($deletedAt)) {
+                    $deletedAt = "'" . date('Y-m-d H:i:s') . "'";
+                }
+                $vals[':deleted_at'] = $deletedAt;
+            }
+            $queries[] = str_replace([':table', ':ids', ':deleted_at'], $vals, $query);
+        }
+        return $this->getClient()->exec(implode(';', $queries));
     }
 }

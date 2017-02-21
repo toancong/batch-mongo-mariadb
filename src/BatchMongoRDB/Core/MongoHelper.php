@@ -43,11 +43,33 @@ class MongoHelper
         $this->db = empty($config['database']) ? 'db' : $config['database'];
     }
 
-    public function getClient()
+    public function connect($forceNew = false)
     {
-        if ($this->client === null) {
+        if ($forceNew || $this->client === null) {
             $this->client = (new \MongoDB\Client($this->connectionStr))->{$this->db};
         }
+        return true;
+    }
+
+    public function close()
+    {
+        if ($this->client !== null) {
+            $this->client = null;
+        }
+        return true;
+    }
+
+    public function reconnect()
+    {
+        if ($this->close()) {
+            return $this->connect(true);
+        }
+        return false;
+    }
+
+    public function getClient()
+    {
+        $this->connect();
         return $this->client;
     }
 

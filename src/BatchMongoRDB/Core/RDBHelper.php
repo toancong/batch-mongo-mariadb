@@ -71,8 +71,8 @@ class RDBHelper
                 ':collection' => "'$collectionName'",
                 ':last_updated_at' => isset($item['last_updated_at']) ? $item['last_updated_at'] : 'null',
                 ':last_deleted_at' => isset($item['last_deleted_at']) ? $item['last_deleted_at'] : 'null',
-                ':last_updated_id' => "'{$item['last_updated_id']}'",
-                ':last_deleted_id' => "'{$item['last_deleted_id']}'",
+                ':last_updated_id' => isset($item['last_updated_id']) ? "'{$item['last_updated_id']}'" : 'null',
+                ':last_deleted_id' => isset($item['last_deleted_id']) ? "'{$item['last_deleted_id']}'" : 'null',
                 ':updated_at' => "'" . date('Y-m-d H:i:s') . "'",
             ];
             $queries[] = str_replace($cols, $vals, $query);

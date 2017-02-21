@@ -32,6 +32,7 @@ services:
     build: .
     depends_on:
       - rdb
+      - rdbtest
       - mongo
     volumes:
       - .:/app

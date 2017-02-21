@@ -108,4 +108,13 @@ class RDBHelper
         }
         $this->getClient()->exec(implode(';', $queries));
     }
+
+    public function createTable($table, $schemaColumns, $meta = ' ENGINE=InnoDB DEFAULT CHARSET=utf8;') {
+      $columns = [];
+      foreach ($schemaColumns as $column) {
+        $columns[] = implode(' ', $column);
+      }
+      $query = "CREATE TABLE IF NOT EXISTS `{$table}` (".implode(',', $columns).")".$meta.';';
+      $this->getClient()->exec($query);
+    }
 }

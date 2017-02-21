@@ -109,7 +109,7 @@ class RDBHelper
         $this->getClient()->exec(implode(';', $queries));
     }
 
-    public function deleteByIds($arr = [], $soft = true)
+    public function deleteByIds($arr = [], $soft = true, $deletedAtByIds = [])
     {
         $query = $soft ? 'UPDATE `:table` SET `deleted_at`=:deleted_at WHERE `id` IN (:ids)' : 'DELETE FROM `:table` WHERE `id` IN (:ids)';
         $queries = [];
@@ -119,7 +119,19 @@ class RDBHelper
                 ':ids' => "'" . implode("','", $ids) . "'",
             ];
             if ($soft) {
-                $vals[':deleted_at'] = "'" . date('Y-m-d H:i:s') . "'";
+                $deletedAt = null;
+                if (!empty($deletedByIds)) {
+                    foreach ($ids as $id) {
+                        if (isset($deletedByIds[$id])) {
+                            $deletedAt = "'" . $deletedByIds[$id] . "'";
+                            break;
+                        }
+                    }
+                }
+                if (empty($deletedAt)) {
+                    $deletedAt = "'" . date('Y-m-d H:i:s') . "'";
+                }
+                $vals[':deleted_at'] = $deletedAt;
             }
             $queries[] = str_replace([':table', ':ids', ':deleted_at'], $vals, $query);
         }

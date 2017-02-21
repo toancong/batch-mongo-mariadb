@@ -16,14 +16,14 @@ echo \BatchMongoRDB\Core\PhinxHelper::init()->runMigrate();
 
 // Gets jobs
 \BatchMongoRDB\Core\ConsoleHelper::init();
-$jobs = \BatchMongoRDB\Core\ConsoleHelper::getJobs();
-if (!empty($jobs)) {
+$job = \BatchMongoRDB\Core\ConsoleHelper::getJob();
+if (!empty($job)) {
     // Gets DB helpers
     $mongoHelper = new \BatchMongoRDB\Core\MongoHelper();
     $rdbHelper = new \BatchMongoRDB\Core\RDBHelper();
 
-    // Runs jobs
-    $runner = new \BatchMongoRDB\Core\JobRunner($mongoHelper, $rdbHelper, $jobs);
+    // Runs job
+    $runner = new \BatchMongoRDB\Core\JobRunner($mongoHelper, $rdbHelper, $job);
     $runner->process();
 } else {
     echo 'No jobs. Exit!';

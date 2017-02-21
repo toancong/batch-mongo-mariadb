@@ -3,8 +3,6 @@ namespace BatchMongoRDB\Core;
 
 class MongoHelper
 {
-    const COLLECTIONS = ['shops', 'user_shops', 'user', 'shifts', 'time_cards', 'holidays', 'business_times', 'request_day_offs', 'breaks'];
-
     protected $client = null;
     protected $connectionStr;
     protected $db;
@@ -73,17 +71,22 @@ class MongoHelper
         return $this->client;
     }
 
-    public function getUpdatedData($meta = [], $limit = 1000)
+    public function getUpdatedData($collections, $meta = [], $limit = 1000)
     {
         $results = [];
-        foreach (static::COLLECTIONS as $collectionName) {
-            $condition = [];
+        foreach ($collections as $collectionName) {
+            $condition = [
+                'updated_at' => [
+                    '$exists' => true,
+                    '$ne' => null,
+                ],
+            ];
             if (isset($meta[$collectionName]['last_updated_at_first'])) {
                 // Fetchs data for next page
-                $condition['updated_at'] = ['$gte' => new \MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_updated_at_first'])];
+                $condition['updated_at']['$gte'] = new \MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_updated_at_first']);
             } elseif (isset($meta[$collectionName]['last_updated_at'])) {
                 // Fetchs new data
-                $condition['updated_at'] = ['$gt' => new \MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_updated_at'])];
+                $condition['updated_at']['$gt'] = new \MongoDB\BSON\UTCDateTime($meta[$collectionName]['last_updated_at']);
             }
             if (isset($meta[$collectionName]['last_updated_id'])) {
                 $condition['_id'] = ['$gt' => new \MongoDB\BSON\ObjectID($meta[$collectionName]['last_updated_id'])];
@@ -105,10 +108,10 @@ class MongoHelper
         return [$results, $meta];
     }
 
-    public function getDeletedData($meta = [], $limit = 1000)
+    public function getDeletedData($collections, $meta = [], $limit = 1000)
     {
         $results = [];
-        foreach (static::COLLECTIONS as $collectionName) {
+        foreach ($collections as $collectionName) {
             $condition = [
                 'deleted_at' => [
                     '$exists' => true,

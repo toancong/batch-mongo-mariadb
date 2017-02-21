@@ -14,6 +14,7 @@ services:
     ports:
       - 33306:3306
     environment:
+      - MYSQL_HOST=rdb
       - MYSQL_DATABASE=db
       - MYSQL_USER=dbuser
       - MYSQL_PASSWORD=123

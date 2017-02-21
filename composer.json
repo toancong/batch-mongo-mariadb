@@ -5,10 +5,12 @@
     "require": {
         "php": ">=7.1",
         "vlucas/phpdotenv": "^2.4",
-        "mongodb/mongodb": "^1.1"
+        "mongodb/mongodb": "^1.1",
+        "robmorgan/phinx": "^0.7.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.0"
+        "phpunit/phpunit": "^6.0",
+        "symfony/var-dumper": "^3.2"
     },
     "autoload": {
         "psr-4": {

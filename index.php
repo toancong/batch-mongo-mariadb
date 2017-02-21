@@ -11,12 +11,16 @@ try {
     throw new $e;
 }
 
+
 // Gets DB helpers
 $mongoHelper = new \BatchMongoRDB\Core\MongoHelper(getenv('MONGODB_URL'), getenv('MONGODB_DB'));
 $rdbHelper = new \BatchMongoRDB\Core\RDBHelper(getenv('RDB_URL') . ';dbname=' . getenv('RDB_DB'), getenv('RDB_USER'), getenv('RDB_PASS'));
 
 // Initials MySQL
-$rdbHelper->init();
+// $rdbHelper->init();
+
+// Migration
+echo \BatchMongoRDB\Core\PhinxHelper::init()->runMigrate();
 
 // Gets meta data
 // $oldMeta is the meta for current process

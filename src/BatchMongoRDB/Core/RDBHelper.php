@@ -48,6 +48,11 @@ class RDBHelper
     {
         $meta = [];
         $items = $this->getClient()->query("SELECT * FROM `{$this->metaTable}`");
+
+        if (!$items) {
+            return $meta;
+        }
+
         foreach ($items as $item) {
             $meta[$item['collection']] = [
                 'id' => intval($item['id']),

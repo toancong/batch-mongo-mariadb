@@ -44,4 +44,14 @@ abstract class AbstractJob
      * Do something after done task
      */
     abstract public function done();
+
+  public function getCollectionNames()
+  {
+    return array_keys($this->getMappingSchemeConfig()['table']);
+  }
+
+  public function getTableNames()
+  {
+    return array_values($this->getMappingSchemeConfig()['table']);
+  }
 }

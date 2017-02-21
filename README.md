@@ -11,3 +11,9 @@
   ```
   docker exec -it <mongo container name> mongorestore --nsInclude '*'  --db dbmongo  /data/dbmongo
   ```
+
+# Test
+
+  ```
+  composer test
+  ```

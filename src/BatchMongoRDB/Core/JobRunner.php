@@ -6,7 +6,7 @@ namespace BatchMongoRDB\Core;
  */
 class JobRunner
 {
-    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper, $jobs = [])
+    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper, $job = [])
     {
         $this->mongoHelper = $mongoHelper;
         $this->rdbHelper = $rdbHelper;
@@ -14,7 +14,8 @@ class JobRunner
         $this->oldMeta = $this->rdbHelper->getMeta();
         $this->newMeta = $this->oldMeta;
 
-        $this->jobs = $jobs;
+        $jobClass = '\\BatchMongoRDB\\Jobs\\' . $job;
+        $this->job = new $jobClass($mongoHelper, $rdbHelper);
 
         // Gets reconnect time in env (seconds)
         $this->reconnectAfter = intval(getenv('RECONNECT_AFTER'));
@@ -85,6 +86,7 @@ class JobRunner
     public function process()
     {
         $start = time();
+        $collections = array_keys($this->job->getMappingSchemeConfig()['table']);
         while (true) {
             // Reconnects to DBs
             $this->connectionTime = time() - $start;
@@ -98,7 +100,7 @@ class JobRunner
             $isDeletedFinished = false;
 
             // Gets update data from mongoDB
-            list($updatedData, $updatedMeta) = $this->mongoHelper->getUpdatedData($this->oldMeta);
+            list($updatedData, $updatedMeta) = $this->mongoHelper->getUpdatedData($collections, $this->oldMeta);
             if (!empty($updatedData)) {
                 // Changes flag value
                 $hasNewData = true;
@@ -106,6 +108,7 @@ class JobRunner
                 // Adds new meta
                 $this->update($updatedMeta);
                 // @TODO updates data here
+                $this->job->doReplace($updatedData);
             } else {
                 // Finished, resets meta for new update data
                 $isUpdatedFinished = true;
@@ -113,7 +116,7 @@ class JobRunner
             }
 
             // Gets remove data from mongoDB
-            list($deletedData, $deletedMeta) = $this->mongoHelper->getDeletedData($this->oldMeta);
+            list($deletedData, $deletedMeta) = $this->mongoHelper->getDeletedData($collections, $this->oldMeta);
             if (!empty($deletedData)) {
                 // Changes flag value
                 $hasNewData = true;
@@ -121,6 +124,7 @@ class JobRunner
                 // Adds new meta
                 $this->delete($deletedMeta);
                 // @TODO deletes data here
+                $this->job->doDelete($updatedData);
             } else {
                 // Finished, resets meta for new delete data
                 $isDeletedFinished = true;

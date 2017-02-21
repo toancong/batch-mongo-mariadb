@@ -13,6 +13,8 @@ class JobRunner
 
         $this->oldMeta = $this->rdbHelper->getMeta();
         $this->newMeta = $this->oldMeta;
+
+        $this->jobs = $jobs;
     }
 
     public function update($updatedMeta = [])

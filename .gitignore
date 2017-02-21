@@ -3,3 +3,4 @@
 /composer.lock
 /resources/mongo/dump
 /*.env
+/build/logs

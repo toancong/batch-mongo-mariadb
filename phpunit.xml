@@ -1,0 +1,27 @@
+<phpunit
+  bootstrap="./tests/bootstrap.php"
+  backupGlobals="true"
+  colors="true">
+  <testsuites>
+    <testsuite name="Batch Application Test Suite">
+      <directory suffix="Test.php">./tests</directory>
+    </testsuite>
+  </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">./src</directory>
+    </whitelist>
+  </filter>
+  <logging>
+    <log type="coverage-html" target="build/coverage"/>
+    <log type="coverage-clover" target="build/logs/clover.xml"/>
+    <log type="junit" target="build/logs/junit.xml" logIncompleteSkipped="false"/>
+  </logging>
+  <php>
+    <env name="APP_ENV" value="test"/>
+    <env name="DB_HOST" value="rdbtest"/>
+    <env name="DB_NAME" value="db_test"/>
+    <env name="DB_USER" value="dbuser"/>
+    <env name="DB_PASS" value="123"/>
+  </php>
+</phpunit>

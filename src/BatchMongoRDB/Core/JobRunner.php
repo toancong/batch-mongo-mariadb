@@ -156,10 +156,10 @@ class JobRunner
     public static function run($job = '')
     {
         // Loads environment
-      (new \Dotenv\Dotenv(__DIR__.'/../../../'))->load();
+        (new \Dotenv\Dotenv(__DIR__.'/../../../'))->load();
 
-      // priority get job name
-      $job = ConsoleHelper::getJob() ?? $job ?? getenv('DEFAULT_JOBS');
+        // priority get job name
+        $job = ConsoleHelper::getJob() ?? $job ?? getenv('DEFAULT_JOBS');
         $job = '\\BatchMongoRDB\Jobs\\'.$job;
 
         if (!class_exists($job)) {
@@ -167,18 +167,18 @@ class JobRunner
             return;
         }
 
-      // Connect databases
-      $mongoHelper = new MongoHelper;
+        // Connect databases
+        $mongoHelper = new MongoHelper;
         $rdbHelper = new RDBHelper;
 
-      // Run migration
-      echo PhinxHelper::init()->runMigrate();
+        // Run migration
+        echo PhinxHelper::init()->runMigrate();
 
-      // Create a job
-      $job = new $job($mongoHelper, $rdbHelper);
+        // Create a job
+        $job = new $job($mongoHelper, $rdbHelper);
 
-      // Runs job
-      $runner = new self($mongoHelper, $rdbHelper, $job);
+        // Runs job
+        $runner = new self($mongoHelper, $rdbHelper, $job);
         $runner->process();
     }
 }

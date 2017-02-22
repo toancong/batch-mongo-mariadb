@@ -1,5 +1,6 @@
 <?php
 namespace BatchMongoRDB\Core;
+
 use \BatchMongoRDB\Core\ConsoleHelper;
 use \BatchMongoRDB\Core\MongoHelper;
 use \BatchMongoRDB\Core\PhinxHelper;
@@ -144,31 +145,31 @@ class JobRunner
 
     private function init()
     {
-      $this->oldMeta = $this->rdbHelper->getMeta();
-      $this->newMeta = $this->oldMeta;
+        $this->oldMeta = $this->rdbHelper->getMeta();
+        $this->newMeta = $this->oldMeta;
 
       // Gets reconnect time in env (seconds)
       $this->reconnectAfter = intval(getenv('RECONNECT_AFTER'));
-      $this->connectionTime = 0;
+        $this->connectionTime = 0;
     }
 
     public static function run($job = '')
     {
-      // Loads environment
+        // Loads environment
       (new \Dotenv\Dotenv(__DIR__.'/../../../'))->load();
 
       // priority get job name
       $job = ConsoleHelper::getJob() ?? $job ?? getenv('DEFAULT_JOBS');
-      $job = '\\BatchMongoRDB\Jobs\\'.$job;
+        $job = '\\BatchMongoRDB\Jobs\\'.$job;
 
-      if (!class_exists($job)) {
-        echo 'No jobs. Exit!';
-        return;
-      }
+        if (!class_exists($job)) {
+            echo 'No jobs. Exit!';
+            return;
+        }
 
       // Connect databases
       $mongoHelper = new MongoHelper;
-      $rdbHelper = new RDBHelper;
+        $rdbHelper = new RDBHelper;
 
       // Run migration
       echo PhinxHelper::init()->runMigrate();
@@ -178,6 +179,6 @@ class JobRunner
 
       // Runs job
       $runner = new self($mongoHelper, $rdbHelper, $job);
-      $runner->process();
+        $runner->process();
     }
 }

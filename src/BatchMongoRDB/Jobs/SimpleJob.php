@@ -8,7 +8,6 @@ use BatchMongoRDB\Core\AbstractJob;
  */
 abstract class SimpleJob extends AbstractJob
 {
-
     public function doReplace($data)
     {
         $config = $this->getMappingSchemeConfig();
@@ -19,7 +18,7 @@ abstract class SimpleJob extends AbstractJob
         $tables = $this->getTableNames();
         $queries = [];
         foreach ($tables as $index => $table) {
-            $queries[] = $this->rdbHelper->createTable($table, array_values($config['columns']), null, true);
+            $this->rdbHelper->createTable($table, array_values($config['columns']), null);
             $mapping = [];
             foreach ($this->getMappingSchemeConfig()['columns'] as $mongoField => $item) {
                 $mapping[$mongoField] = $item[0];
@@ -28,6 +27,7 @@ abstract class SimpleJob extends AbstractJob
                 $queries[] = $this->rdbHelper->replace($table, $mapping, $row, true);
             }
         }
+
         $this->rdbHelper->bulk($queries);
     }
 
@@ -37,6 +37,5 @@ abstract class SimpleJob extends AbstractJob
 
     public function done()
     {
-
     }
 }

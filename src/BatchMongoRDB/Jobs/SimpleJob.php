@@ -19,7 +19,7 @@ abstract class SimpleJob extends AbstractJob
         foreach ($tables as $table) {
             $queries[] = $this->rdbHelper->createTable($table, $metaColumns, null, true);
         }
-        $this->rdbHelper->bulk($queries);
+        $this->rdbHelper->exec($queries);
     }
 
 
@@ -30,19 +30,15 @@ abstract class SimpleJob extends AbstractJob
             return;
         }
 
-        $mongoFields = $this->getCollectionFields();
         $queries = [];
         foreach ($tables as $table) {
-            $mapping = [];
-            foreach ($mongoFields as $mongoField => $item) {
-                $mapping[$mongoField] = $item[0];
-            }
+            $mapping = array_combine($this->getCollectionFields(), $this->getTableColumns());
             foreach ($data[$table] as $row) {
                 $queries[] = $this->rdbHelper->replace($table, $mapping, $row, true);
             }
         }
 
-        $this->rdbHelper->bulk($queries);
+        return $this->rdbHelper->bulk($queries);
     }
 
     public function doDelete($data)

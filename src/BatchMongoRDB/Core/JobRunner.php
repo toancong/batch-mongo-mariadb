@@ -82,6 +82,7 @@ class JobRunner
     {
         $this->init();
         $start = time();
+        $this->job->init();
         $collections = $this->job->getCollectionNames();
         while (true) {
             // Reconnects to DBs

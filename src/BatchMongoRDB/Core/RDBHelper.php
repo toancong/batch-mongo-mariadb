@@ -178,7 +178,8 @@ class RDBHelper
         foreach ($schemaColumns as $column) {
             $columns[] = implode(' ', $column);
         }
-        $query = "CREATE TABLE IF NOT EXISTS `{$table}` (" . implode(',', $columns) . ')';
+        $meta = $meta ?? ' ENGINE=InnoDB DEFAULT CHARSET=utf8;';
+        $query = "CREATE TABLE IF NOT EXISTS `{$table}` (" . implode(',', $columns) . ')'.$meta;
         return $toString ? $query : $this->getClient()->exec($query);
     }
 }

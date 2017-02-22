@@ -8,20 +8,33 @@ use BatchMongoRDB\Core\AbstractJob;
  */
 abstract class SimpleJob extends AbstractJob
 {
+    public function init()
+    {
+        $tables = $this->getTableNames();
+        if (!$table) {
+            return;
+        }
+        $metaColumns = $this->getTableColumnsWithMeta();
+        $queries = [];
+        foreach ($tables as $table) {
+            $queries[] = $this->rdbHelper->createTable($table, $metaColumns, null, true);
+        }
+        $this->rdbHelper->bulk($queries);
+    }
+
 
     public function doReplace($data)
     {
-        $config = $this->getMappingSchemeConfig();
-        if (!$config) {
+        $tables = $this->getTableNames();
+        if (!$table) {
             return;
         }
 
-        $tables = $this->getTableNames();
+        $mongoFields = $this->getCollectionFields();
         $queries = [];
-        foreach ($tables as $index => $table) {
-            $queries[] = $this->rdbHelper->createTable($table, array_values($config['columns']), null, true);
+        foreach ($tables as $table) {
             $mapping = [];
-            foreach ($this->getMappingSchemeConfig()['columns'] as $mongoField => $item) {
+            foreach ($mongoFields as $mongoField => $item) {
                 $mapping[$mongoField] = $item[0];
             }
             foreach ($data[$table] as $row) {

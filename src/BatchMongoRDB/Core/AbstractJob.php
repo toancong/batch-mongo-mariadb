@@ -12,7 +12,7 @@ abstract class AbstractJob
     public $rdbConnection;
     public $mongoConnection;
 
-    public function __construct(\BatchMongoRDB\Core\MongoHelper $mongoHelper, \BatchMongoRDB\Core\RDBHelper $rdbHelper)
+    public function __construct(MongoHelper $mongoHelper, RDBHelper $rdbHelper)
     {
         $this->mongoHelper = $mongoHelper;
         $this->rdbHelper = $rdbHelper;
@@ -45,13 +45,34 @@ abstract class AbstractJob
      */
     abstract public function done();
 
-  public function getCollectionNames()
-  {
-    return array_keys($this->getMappingSchemeConfig()['table']);
-  }
+    public function init()
+    {
+    }
 
-  public function getTableNames()
-  {
-    return array_values($this->getMappingSchemeConfig()['table']);
-  }
+    public function getCollectionNames()
+    {
+        return array_keys($this->getMappingSchemeConfig()['table']);
+    }
+
+    public function getCollectionFields()
+    {
+      return array_keys($this->getMappingSchemeConfig()['columns']);
+    }
+
+    public function getTableNames()
+    {
+        return array_values($this->getMappingSchemeConfig()['table']);
+    }
+
+    public function getTableColumns()
+    {
+        return array_map(function ($a) {
+          return $a[0];
+        }, array_values($this->getMappingSchemeConfig()['columns']));
+    }
+
+    public function getTableColumnsWithMeta()
+    {
+        return array_values($this->getMappingSchemeConfig()['columns']);
+    }
 }

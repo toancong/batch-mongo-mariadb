@@ -12,6 +12,7 @@ class ConsoleHelper
     {
         if (static::$client === null) {
             static::$client = new \Commando\Command();
+            self::init();
         }
         return static::$client;
     }
@@ -26,6 +27,6 @@ class ConsoleHelper
 
     public static function getJob()
     {
-        return empty(static::getClient()['j']) ? (getenv('DEFAULT_JOBS') ? getenv('DEFAULT_JOBS') : null) : static::getClient()['j'];
+        return static::getClient()['j'];
     }
 }

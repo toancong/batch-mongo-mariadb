@@ -11,7 +11,7 @@ abstract class SimpleJob extends AbstractJob
     public function init()
     {
         $tables = $this->getTableNames();
-        if (!$table) {
+        if (!$tables) {
             return;
         }
         $metaColumns = $this->getTableColumnsWithMeta();
@@ -26,7 +26,7 @@ abstract class SimpleJob extends AbstractJob
     public function doReplace($data)
     {
         $tables = $this->getTableNames();
-        if (!$table) {
+        if (!$tables) {
             return;
         }
 
@@ -41,6 +41,7 @@ abstract class SimpleJob extends AbstractJob
                 $queries[] = $this->rdbHelper->replace($table, $mapping, $row, true);
             }
         }
+
         $this->rdbHelper->bulk($queries);
     }
 
@@ -50,6 +51,5 @@ abstract class SimpleJob extends AbstractJob
 
     public function done()
     {
-
     }
 }

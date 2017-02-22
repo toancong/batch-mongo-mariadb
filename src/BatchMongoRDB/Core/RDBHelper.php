@@ -76,9 +76,20 @@ class RDBHelper
 
     public function bulk($queries = [])
     {
-        if (!empty($queries)) {
-            $this->getClient()->exec(implode(';', $queries));
+        if (!$queries) {
+            return true;
         }
+
+        $sps = strpos($queries[0], 'VALUES');
+        $query = substr($queries[0], 0, $sps);
+        $values = [];
+
+        foreach ($queries as $value) {
+            $values[] = substr($value, $sps + 6);
+        }
+
+        $query .= ' VALUES ' . implode(',', $values);
+        $this->getClient()->exec($query);
     }
 
     public function getMeta()

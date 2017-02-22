@@ -168,18 +168,24 @@ class RDBHelper
         foreach ($mapping as $mongoField => $rdbField) {
             $colsUnique[$rdbField] = uniqid("col_{$rdbField}");
         }
+
         $query = "REPLACE INTO `{$table}`(`" . implode('`,`', array_values($mapping)) . '`) VALUES (:' . implode(',:', array_values($colsUnique)) . ')';
         $vals = [];
         $cols = [];
         foreach ($mapping as $mongoField => $rdbField) {
             $col = ":{$colsUnique[$rdbField]}";
             if (isset($row->$mongoField)) {
-                $vals[$col] = "'" . (string) $row->$mongoField . "'";
+                if ($row->$mongoField instanceof \MongoDB\BSON\UTCDateTime) {
+                    $vals[$col] = "'" . $row->$mongoField->toDateTime()->format('Y-m-d H:i:s') . "'";
+                } else {
+                    $vals[$col] = "'" . (string) $row->$mongoField . "'";
+                }
             } else {
                 $vals[$col] = 'null';
             }
             $cols[] = $col;
         }
+
         return $toString ? str_replace($cols, $vals, $query) : $this->getClient()->exec(str_replace($cols, $vals, $query));
     }
 

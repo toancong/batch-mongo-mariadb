@@ -83,6 +83,7 @@ class JobRunner
     {
         $this->init();
         $start = time();
+        $this->job->init();
         $collections = $this->job->getCollectionNames();
         while (true) {
             // Reconnects to DBs
@@ -172,7 +173,7 @@ class JobRunner
         $rdbHelper = new RDBHelper;
 
         // Run migration
-        echo PhinxHelper::init()->runMigrate();
+        PhinxHelper::init()->runMigrate();
 
         // Create a job
         $job = new $job($mongoHelper, $rdbHelper);
